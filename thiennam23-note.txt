@@ -1,0 +1,37 @@
+# Sreen: https://orchid.software/en/docs/screens/
+- Tạo Screen: php artisan orchid:screen [Tên Screen] -> 1 file sẽ được tạo ở: app/Orchid/Screens
+- cần đăng ký Screen với Route (Controller cũng vậy): routes/platform.php
+	> use App\Orchid\Screens\EmailSenderScreen;
+	> Route:screen('email', EmailSenderScreen::class)->name('platform.emal');
+- Đăng ký với Breadcrumb: đăng ký ở /routes/platform.php (ngay sau name khi đăng ký route)
+- Có thể đăng ký nhiều Route
+- Thêm vào mennu chính: đăng ký ở /app/Orchid/PlatformProvider.php
+- Đôi khi có thể dùng cùng một layout cho những thứ khác, để tránh lặp code thì có thể tạo một mẫu:
+	> php artisan orchid:rows ReusableEditLayout: file sẽ được tạo trong: /app/Orchid/Layouts/
+	- sử dụng như Idea.php - line 83
+
+# Data Management:
+- Orchid có cung cấp một package CRUD đơn giản, hoặc không thì cũng thể thao tác đơn giản với database
+- B1: tạo migration:
+	> php artisan make:migration create_cars_table
+	- file sẽ được tạo ở database/migrations, thiết lập chema cho table ở đây
+- B2: chạy code migration:
+	> php artisan migrate
+- B3: Tạo model:
+	> php artisan make:model Car
+	- file Model sẽ được tạo trong: /app/Models, thực hiện chỉnh sửa cấu hình Model
+- B4: tạo 2 screen, 1 thực hiện Edit record, 1 thực hiện list toàn bộ record
+- B5: đăng ký Screen với Route và Main menu
+- B6: nên tạo TableLayout sau đó cho CarListScreen sử dụng
+
+# Manage attachments
+- Nối tiếp Data Management, phần này thực hiện thêm attach file cho đối tượng Car, cụ thể là file ảnh
+- B1: tạo một migration khác:
+	> php artisan make:migration add_image_column_for_car_table
+-B2: thực hiện chỉnh sửa migration để thêm cột mới vào table Cars, cột mới có tên `image`, cột này sẽ lưu lại link file ảnh khi người dùng up ảnh lên cho từng bản ghi
+- B3: thêm Cropper trong TableLayout tạo ở B6 phần trên để xử lý ảnh khi upload (chú ý: đôi khi việc upload không thành công, có thể do 1upload_max_filesize` và `post_max_size` trong php.ini, sửa chúng)
+Notes:
+- Nếu thay đổi domain hoặc chuyển sang sử dụng https, nên thêm dòng sau đối với Cropper:
+	> ->targetRelativeUrl()
+- Một lựa chọn khác để ghi vào column 'image' là sử dụng `relationships` [https://laravel.com/docs/master/eloquent-relationships], với điều này, Cropper sẽ ghi lại số lượng file đã tải xuống, sử dụng cho Cropper:
+	> ->targetId()
